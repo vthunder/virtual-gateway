@@ -8,8 +8,17 @@ A WebSocket server that acts as a virtual network gateway for the [Infinite Mac]
 - **DHCP**: Hands out IP config to the Mac (10.0.0.2, gateway 10.0.0.1, DNS 10.0.0.1)
 - **DNS**: Resolves hostnames by forwarding to 8.8.8.8
 - **ICMP**: Responds to pings (needed for Open Transport to confirm gateway reachability)
-- **TCP + HTTP/1.0 proxy**: Accepts TCP connections from Netscape, fetches pages via WebOne, returns HTTP/1.0 responses
-- **WebOne sidecar**: HTTP proxy that handles HTTPS→HTTP/1.0 downgrade and image conversion (PNG/WebP → JPEG 320×240)
+- **TCP + HTTP/1.0 proxy**: Accepts TCP connections from Netscape, fetches pages via a retro HTTP proxy, returns HTTP/1.0 responses
+
+## Configuration
+
+| Env var | Default | Description |
+|---|---|---|
+| `PORT` | `3001` | WebSocket server port |
+| `CHECKPOINT` | `4` | Feature level (2=ARP, 3=TCP, 4=HTTP proxy) |
+| `RETRO_PROXY_URL` | `http://127.0.0.1:8118` | URL of the retro HTTP proxy (WebOne or compatible) |
+
+For production, set `RETRO_PROXY_URL` to the deployed sandmill-proxy URL, e.g. `http://proxy.sandmill.org:8080`.
 
 ## Virtual network
 
@@ -31,8 +40,7 @@ npm run proxy   # start with full HTTP proxy (checkpoint 4)
 Environment:
 - `PORT` — WebSocket port (default: 3001)
 - `CHECKPOINT` — 2=ARP only, 3=TCP passthrough, 4=full HTTP proxy
-
-WebOne must be running on `127.0.0.1:8118` for HTTP proxying to work. See `webone-retro.conf` for config.
+- `RETRO_PROXY_URL` — retro proxy URL (default: `http://127.0.0.1:8118`)
 
 ## Production (Docker)
 
@@ -41,7 +49,7 @@ docker build -t virtual-ethernet-switch .
 docker run -p 3001:3001 virtual-ethernet-switch
 ```
 
-The Dockerfile bundles Node 20 + .NET 8 runtime + WebOne 0.18.1. WebOne starts as a sidecar process on 127.0.0.1:8118.
+The Dockerfile is Node 20 only. Set `RETRO_PROXY_URL` to point at an external retro proxy.
 
 ## Architecture
 
@@ -53,9 +61,9 @@ Cloudflare Worker (ethernet zone relay)
     │ WebSocket
     ▼
 virtual-ethernet-switch  ← this repo
-    │ HTTP forward proxy
+    │ HTTP forward proxy (RETRO_PROXY_URL)
     ▼
-WebOne (sidecar, :8118)
+sandmill-proxy (external)
     │ HTTPS downgrade + image resize
     ▼
 Real internet

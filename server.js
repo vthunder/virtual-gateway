@@ -305,14 +305,15 @@ function fetchHttp(method, url, headers, body, _redirects = 0) {
   });
 }
 
-function fetchViaWebOne(url, reqHeaders) {
+const RETRO_PROXY_URL = process.env.RETRO_PROXY_URL || 'http://127.0.0.1:8118';
+
+function fetchViaProxy(url, reqHeaders) {
   return new Promise((resolve, reject) => {
-    const WEBONE_HOST = process.env.WEBONE_HOST || '127.0.0.1';
-    const WEBONE_PORT = parseInt(process.env.WEBONE_PORT || '8118', 10);
+    const proxyUrl = new URL(RETRO_PROXY_URL);
 
     const options = {
-      hostname: WEBONE_HOST,
-      port: WEBONE_PORT,
+      hostname: proxyUrl.hostname,
+      port: parseInt(proxyUrl.port || '80', 10),
       // Forward proxy protocol: absolute URI as the path
       path: url,
       method: 'GET',
@@ -422,11 +423,11 @@ async function handleHttpRequest(conn) {
     return;
   }
 
-  // Real hostname — forward to WebOne retro proxy (127.0.0.1:8118).
-  // WebOne handles HTTPS→HTTP/1.0 downgrade, image resizing, redirect following.
+  // Real hostname — forward to retro proxy (RETRO_PROXY_URL).
+  // The proxy handles HTTPS→HTTP/1.0 downgrade, image resizing, redirect following.
   let responseBody, statusCode, statusText, contentType;
   try {
-    const result = await fetchViaWebOne(url, req.headers);
+    const result = await fetchViaProxy(url, req.headers);
     statusCode = result.status;
     statusText = http.STATUS_CODES[statusCode] || 'Unknown';
     responseBody = result.body;
