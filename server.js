@@ -361,7 +361,7 @@ function parseHttpRequest(buf) {
   return { method, path, version, headers, body: buf.slice(bodyStart, bodyStart + contentLength) };
 }
 
-async function handleHttpRequest(conn) {
+async function handleHttpRequest(conn, scheme = 'http') {
   if (conn.httpHandled) return;
   conn.httpHandled = true;
 
@@ -373,7 +373,7 @@ async function handleHttpRequest(conn) {
   }
 
   const host = req.headers['host'] || conn.dstIp;
-  const url = `http://${host}${req.path}`;
+  const url = `${scheme}://${host}${req.path}`;
 
   // Navigation intercept: GET http://10.0.0.1/nav/<path>
   // Reply with a 200 OK to the Mac (so OT/Netscape doesn't hang),
@@ -796,7 +796,11 @@ function handleFrame(ws, msg, connections, connId = '?', retroBase = 'http://loc
 
     if (CHECKPOINT >= 4 && dstPort === 80) {
       const req = parseHttpRequest(conn.recvBuf);
-      if (req) handleHttpRequest(conn).catch(e => console.error(`${ts()} #${connId} HTTP error:`, e));
+      if (req) handleHttpRequest(conn, 'http').catch(e => console.error(`${ts()} #${connId} HTTP error:`, e));
+    }
+    if (CHECKPOINT >= 4 && dstPort === 443) {
+      const req = parseHttpRequest(conn.recvBuf);
+      if (req) handleHttpRequest(conn, 'https').catch(e => console.error(`${ts()} #${connId} HTTPS error:`, e));
     }
     if (dstPort === 23) {
       // Echo the data back so NiftyTelnet has something to display
