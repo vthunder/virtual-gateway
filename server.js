@@ -375,9 +375,18 @@ async function handleHttpRequest(conn, scheme = 'http') {
   const host = req.headers['host'] || conn.dstIp;
   // If Netscape is in proxy mode, req.path is already an absolute URL (e.g. "http://example.com/path").
   // Prepending scheme://host would corrupt it — use it as-is.
-  const url = (req.path.startsWith('http://') || req.path.startsWith('https://'))
+  let url = (req.path.startsWith('http://') || req.path.startsWith('https://'))
     ? req.path
     : `${scheme}://${host}${req.path}`;
+
+  // URL rewrite for VM clients: sandmill.org/ → sandmill.org/retro (transparent)
+  {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.hostname === 'sandmill.org' && parsedUrl.pathname === '/') {
+      parsedUrl.pathname = '/retro';
+      url = parsedUrl.href;
+    }
+  }
 
   // Navigation intercept: GET http://10.0.0.1/nav/<path>
   // Reply with a 200 OK to the Mac (so OT/Netscape doesn't hang),
