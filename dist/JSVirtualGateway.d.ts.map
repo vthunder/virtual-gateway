@@ -1,1 +1,1 @@
-{"version":3,"file":"JSVirtualGateway.d.ts","sourceRoot":"","sources":["../src/JSVirtualGateway.ts"],"names":[],"mappings":"AA4BA,qBAAa,gBAAgB;;gBAMf,YAAY,EAAE,MAAM,EAAE,IAAI,EAAE,CAAC,CAAC,EAAE,UAAU,KAAK,IAAI;IAK/D,aAAa,CAAC,GAAG,EAAE,MAAM;IAIzB,WAAW,CAAC,KAAK,EAAE,UAAU,GAAG,IAAI;CAiZrC"}
+{"version":3,"file":"JSVirtualGateway.d.ts","sourceRoot":"","sources":["../src/JSVirtualGateway.ts"],"names":[],"mappings":"AA4BA,qBAAa,gBAAgB;;gBAMf,YAAY,EAAE,MAAM,EAAE,IAAI,EAAE,CAAC,CAAC,EAAE,UAAU,KAAK,IAAI;IAM/D,aAAa,CAAC,GAAG,EAAE,MAAM;IAIzB,WAAW,CAAC,KAAK,EAAE,UAAU,GAAG,IAAI;CAmZrC"}

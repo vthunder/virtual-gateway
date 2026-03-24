@@ -31,6 +31,7 @@ export class JSVirtualGateway {
         _JSVirtualGateway_proxyBaseUrl.set(this, void 0);
         _JSVirtualGateway_tcpConns.set(this, new Map());
         _JSVirtualGateway_macAddress.set(this, void 0);
+        console.log('[gw] flow-control v1 ready');
         __classPrivateFieldSet(this, _JSVirtualGateway_proxyBaseUrl, proxyBaseUrl.replace(/\/$/, ''), "f");
         __classPrivateFieldSet(this, _JSVirtualGateway_send, send, "f");
     }
@@ -331,6 +332,8 @@ async function _JSVirtualGateway_handleHttp(conn, scheme) {
 }, _JSVirtualGateway_drainPending = function _JSVirtualGateway_drainPending(conn) {
     if (!conn.pendingSend)
         return;
+    const connKey = `${conn.srcIp}:${conn.srcPort}→${conn.dstIp}:${conn.dstPort}`;
+    console.log(`[gw] TCP  DRAIN ${connKey}  offset=${conn.pendingOffset}/${conn.pendingSend.length} window=${conn.recvWindow} avail=${((conn.lastAckedSeq + conn.recvWindow) >>> 0) - conn.serverSeq | 0}`);
     const full = conn.pendingSend;
     while (conn.pendingOffset < full.length) {
         // Available window: signed 32-bit difference handles seq number wraparound

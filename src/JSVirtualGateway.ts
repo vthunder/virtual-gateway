@@ -33,6 +33,7 @@ export class JSVirtualGateway {
   #macAddress: string | undefined;
 
   constructor(proxyBaseUrl: string, send: (p: Uint8Array) => void) {
+    console.log('[gw] flow-control v1 ready');
     this.#proxyBaseUrl = proxyBaseUrl.replace(/\/$/, '');
     this.#send = send;
   }
@@ -392,6 +393,8 @@ export class JSVirtualGateway {
 
   #drainPending(conn: TcpConn): void {
     if (!conn.pendingSend) return;
+    const connKey = `${conn.srcIp}:${conn.srcPort}→${conn.dstIp}:${conn.dstPort}`;
+    console.log(`[gw] TCP  DRAIN ${connKey}  offset=${conn.pendingOffset}/${conn.pendingSend!.length} window=${conn.recvWindow} avail=${((conn.lastAckedSeq + conn.recvWindow) >>> 0) - conn.serverSeq | 0}`);
     const full = conn.pendingSend;
 
     while (conn.pendingOffset < full.length) {
