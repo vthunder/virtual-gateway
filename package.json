@@ -1,9 +1,14 @@
 {
-  "name": "virtual-ethernet-switch",
-  "version": "0.1.0",
-  "description": "Virtual Ethernet switch for Mac OS 8 emulator — provides ARP, ICMP, TCP/HTTP proxy via WebSocket",
-  "main": "server.js",
+  "name": "virtual-gateway",
+  "version": "0.2.0",
+  "description": "JS Virtual Gateway — in-browser TCP/IP gateway for Mac OS 8 emulation",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
+    "build": "tsc",
     "start": "node server.js",
     "arp": "CHECKPOINT=2 node server.js",
     "tcp": "CHECKPOINT=3 node server.js",
@@ -11,6 +16,9 @@
   },
   "dependencies": {
     "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
   },
   "engines": {
     "node": ">=18"
